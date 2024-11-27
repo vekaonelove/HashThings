@@ -9,5 +9,4 @@ public interface HashMap<K,V> {
     void remove(K key,V value);
     void replace(K key, V value);
     void printHashMap();
-
 }

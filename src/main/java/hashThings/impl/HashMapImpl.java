@@ -10,22 +10,14 @@ import java.util.Arrays;
 public class HashMapImpl<K,V> implements HashMap<K,V> {
     private LinkedListImpl<Entry<K, V>>[] buckets;
     private int size;
-    private int capacity = 16; //default capacity - amount of buckets
+    private int capacity = 8; //default capacity - amount of buckets
 
     public LinkedList<Entry<K,V>>[] getBuckets() {
         return buckets;
     }
 
-    public void setBuckets(LinkedListImpl<Entry<K,V>>[] buckets) {
-        this.buckets = buckets;
-    }
-
     public int getSize() {
         return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public int getCapacity() {
@@ -36,6 +28,10 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
         this.capacity = capacity;
     }
 
+    public HashMapImpl(LinkedListImpl<Entry<K, V>>[] buckets) {
+        this.buckets = buckets;
+    }
+
     @Override
     public void add(K key, V value) {
         int hash = key.hashCode();
@@ -43,18 +39,22 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
         if (buckets[index] == null) {
             buckets[index] = new LinkedListImpl<>();
         }
-        Entry<K, V> entry = new Entry<>(key, value, hash);
+        Entry<K, V> entry = new Entry<>(key, value);
         buckets[index].addToEnd(entry);
         size++;
     }
 
     @Override
-    public V getElement(K key){
-        for(int i=0;i<capacity;i++){
-            if(buckets[i] != null){
-                Entry<K,V> entry = buckets[i].getHead().getData();
-                if(entry.getKey().equals(key)){
-                    return entry.getValue();
+    public V getElement(K key) {
+        for (int i = 0; i < capacity; i++) {
+            if (buckets[i] != null && buckets[i].getHead() != null) {
+                Node<Entry<K, V>> current = buckets[i].getHead();
+                while (current != null) {
+                    Entry<K, V> entry = current.getData();
+                    if (entry.getKey().equals(key)) {
+                        return entry.getValue();
+                    }
+                    current = current.getNext();
                 }
             }
         }
@@ -65,6 +65,7 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
     public V pop(K key) {
         int hash = key.hashCode();
         int index = hash % capacity;
+        Node<Entry<K, V>> return_node = buckets[index].getHead();
         if (buckets[index] != null) {
             Node<Entry<K, V>> current = buckets[index].getHead();
             Node<Entry<K, V>> prev = null;
@@ -83,11 +84,16 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
                 current = current.getNext();
             }
         }
-        return null;
+        return return_node.getData().getValue();
     }
 
     @Override
     public void printHashMap() {
+        if (size > 0) {
+            System.out.println("HashMap:");
+        } else {
+            System.out.println("HashMap is empty");
+        }
         for (int i = 0; i < capacity; i++) {
             if (buckets[i] != null) {
                 Node<Entry<K, V>> current = buckets[i].getHead();
@@ -115,7 +121,7 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
             Node<Entry<K, V>> prev = null;
             while (current != null) {
                 Entry<K, V> entry = current.getData();
-                if (entry.getKey().equals(key) && entry.getValue().equals(value)) {
+                if(entry.getKey().equals(key) && entry.getValue().equals(value)) {
                     if (prev == null) {
                         buckets[index].setHead(current.getNext());
                     } else {
@@ -138,7 +144,7 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
             Node<Entry<K, V>> current = buckets[index].getHead();
             while (current != null) {
                 Entry<K, V> entry = current.getData();
-                if (entry.getKey().equals(key)) {
+                if(entry.getKey().equals(key)){
                     entry.setValue(value);
                     return;
                 }

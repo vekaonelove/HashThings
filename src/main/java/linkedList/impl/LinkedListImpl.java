@@ -34,9 +34,6 @@ public class LinkedListImpl<T> implements LinkedList<T> {
 
     @Override
     public Node<T> getElementByIndex(int elementIndex){
-        if(elementIndex < 0 || elementIndex >= size){
-            throw new IndexOutOfBoundsException("Index: " + elementIndex + ", Size: " + size);
-        }
         Node<T> current = head;
         for(int i = 0; i < elementIndex; i++){
             current = current.getNext();
@@ -137,8 +134,8 @@ public class LinkedListImpl<T> implements LinkedList<T> {
     @Override
     public String toString() {
         return "LinkedListImpl{" +
-                "head=" + head +
-                ", tail=" + tail +
+                "head=" + head.toString() +
+                ", tail=" + tail.toString() +
                 ", size=" + size +
                 '}';
     }

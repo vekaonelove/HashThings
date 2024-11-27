@@ -2,7 +2,6 @@ package linkedList;
 
 import java.util.Objects;
 
-// TODO - id - make auto incremental
 public class Node<T> {
     private T data;
     private Node<T> next;
