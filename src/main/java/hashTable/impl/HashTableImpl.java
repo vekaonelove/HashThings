@@ -1,17 +1,14 @@
-package hashThings.impl;
+package hashTable.impl;
 
-import hashThings.Entry;
-import hashThings.HashTable;
-import linkedList.LinkedList;
+import hashTable.Entry;
+import hashTable.HashTable;
 import linkedList.Node;
 import linkedList.impl.LinkedListImpl;
-
-import java.util.Arrays;
 
 public class HashTableImpl<K, V> implements HashTable<K, V> {
     private LinkedListImpl<LinkedListImpl<Entry<K, V>>> buckets;
     private int size;
-    private int capacity = 8; // default capacity - amount of buckets
+    private int capacity = 8;
 
     public HashTableImpl() {
         this.buckets = new LinkedListImpl<>();
@@ -38,7 +35,7 @@ public class HashTableImpl<K, V> implements HashTable<K, V> {
 
     @Override
     public void add(K key, V value) {
-        Entry<K, V> entry = new Entry<>(key, value);
+        Entry<K, V> entry = new Entry<>(key);
         int index = entry.getHashKey() % capacity;
         Node<LinkedListImpl<Entry<K, V>>> bucketNode = buckets.getElementByIndex(index);
         LinkedListImpl<Entry<K, V>> bucket = (bucketNode != null) ? bucketNode.getData() : null;
@@ -127,7 +124,6 @@ public class HashTableImpl<K, V> implements HashTable<K, V> {
         }
         size = 0;
     }
-
 
 
     @Override

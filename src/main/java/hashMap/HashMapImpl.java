@@ -1,6 +1,5 @@
-package hashThings.impl;
-import hashThings.Entry;
-import hashThings.HashMap;
+package hashMap;
+import hashTable.Entry;
 import linkedList.LinkedList;
 import linkedList.Node;
 import linkedList.impl.LinkedListImpl;

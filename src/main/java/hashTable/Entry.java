@@ -1,7 +1,6 @@
-package hashThings;
+package hashTable;
 
 import com.google.common.hash.Hashing;
-
 import java.util.Objects;
 
 public class Entry<K, V> {
@@ -14,6 +13,12 @@ public class Entry<K, V> {
         this.hashKey = Hashing.murmur3_32_fixed().hashInt(key.hashCode()).asInt();
         this.key = key;
         this.value = value;
+    }
+
+    public Entry(K key) {
+        this.hashKey = Hashing.murmur3_32_fixed().hashInt(key.hashCode()).asInt();
+        this.key = key;
+        this.value = null;
     }
 
     public int getHashKey() {
