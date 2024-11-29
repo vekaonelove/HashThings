@@ -5,6 +5,7 @@ import hashTable.HashTable;
 import linkedList.Node;
 import linkedList.impl.LinkedListImpl;
 import binaryTree.BinaryTree;
+
 import java.util.Optional;
 
 @SuppressWarnings("unchecked")
@@ -25,113 +26,62 @@ public class HashTableImpl<K extends Comparable<K>, V> implements HashTable<K, V
         return buckets;
     }
 
-    public void setBuckets(LinkedListImpl<Object> buckets) {
-        this.buckets = buckets;
+    @Override
+    public int getCapacity() {
+        return capacity;
     }
 
     public int getSize() {
         return size;
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
     @Override
     public void add(K key, V value) {
-        Entry<K, V> entry = new Entry<>(key, value);
-        int index = entry.getHashKey() % capacity;
-        Node<Object> bucketNode = buckets.getElementByIndex(index);
-        Object bucket = (bucketNode != null) ? bucketNode.getData() : null;
+        int index = calculateIndex(key);
+        Object bucket = getBucket(index);
+
+        Entry<K, V> newEntry = new Entry<>(key, value);
 
         if (bucket instanceof LinkedListImpl) {
-            @SuppressWarnings("unchecked")
-            LinkedListImpl<Entry<K, V>> linkedList = (LinkedListImpl<Entry<K, V>>) bucket;
-            if (linkedList.getSize() >= BUCKET_THRESHOLD) {
-                BinaryTree<K, V> tree = new BinaryTree<>();
-                Node<Entry<K, V>> current = linkedList.getHead();
-                while (current != null) {
-                    Entry<K, V> existingEntry = current.getData();
-                    tree.add(existingEntry.getKey(), existingEntry.getValue());
-                    current = current.getNext();
-                }
-                tree.add(key, value);
-                buckets.add(index, tree);
-            } else {
-                linkedList.addToEnd(entry);
-            }
+            handleAddToLinkedList((LinkedListImpl<Entry<K, V>>) bucket, newEntry, index);
         } else if (bucket instanceof BinaryTree) {
-            @SuppressWarnings("unchecked")
-            BinaryTree<K, V> tree = (BinaryTree<K, V>) bucket;
-            tree.add(key, value);
+            ((BinaryTree<K, V>) bucket).add(key, value);
         } else {
-            LinkedListImpl<Entry<K, V>> newLinkedList = new LinkedListImpl<>();
-            newLinkedList.addToEnd(entry);
-            buckets.add(index, newLinkedList);
+            LinkedListImpl<Entry<K, V>> newBucket = new LinkedListImpl<>();
+            newBucket.addToEnd(newEntry);
+            buckets.add(index, newBucket);
         }
         size++;
     }
 
     @Override
     public V pop(K key) {
-        int index = key.hashCode() % capacity;
-        Node<Object> bucketNode = buckets.getElementByIndex(index);
-        Object bucket = (bucketNode != null) ? bucketNode.getData() : null;
+        int index = calculateIndex(key);
+        Object bucket = getBucket(index);
 
         if (bucket instanceof LinkedListImpl) {
-            LinkedListImpl<Entry<K, V>> linkedList = (LinkedListImpl<Entry<K, V>>) bucket;
-            Node<Entry<K, V>> current = linkedList.getHead();
-            Node<Entry<K, V>> previous = null;
-            while (current != null) {
-                Entry<K, V> entry = current.getData();
-                if (entry.getKey().equals(key)) {
-                    V value = entry.getValue();
-                    if (previous == null) {
-                        linkedList.setHead(current.getNext());
-                    } else {
-                        previous.setNext(current.getNext());
-                    }
-                    size--;
-                    return value;
-                }
-                previous = current;
-                current = current.getNext();
-            }
+            return removeFromLinkedList((LinkedListImpl<Entry<K, V>>) bucket, key);
         } else if (bucket instanceof BinaryTree) {
             BinaryTree<K, V> tree = (BinaryTree<K, V>) bucket;
             V value = tree.get(key);
             if (value != null) {
                 tree.remove(key);
                 size--;
-                return value;
             }
+            return value;
         }
         return null;
     }
 
     @Override
     public V getElement(K key) {
-        int index = key.hashCode() % capacity;
-        Node<Object> bucketNode = buckets.getElementByIndex(index);
-        Object bucket = (bucketNode != null) ? bucketNode.getData() : null;
+        int index = calculateIndex(key);
+        Object bucket = getBucket(index);
 
         if (bucket instanceof LinkedListImpl) {
-            LinkedListImpl<Entry<K, V>> linkedList = (LinkedListImpl<Entry<K, V>>) bucket;
-            Node<Entry<K, V>> current = linkedList.getHead();
-            while (current != null) {
-                Entry<K, V> entry = current.getData();
-                if (entry.getKey().equals(key)) {
-                    return entry.getValue();
-                }
-                current = current.getNext();
-            }
+            return getFromLinkedList((LinkedListImpl<Entry<K, V>>) bucket, key);
         } else if (bucket instanceof BinaryTree) {
-            BinaryTree<K, V> tree = (BinaryTree<K, V>) bucket;
-            return tree.get(key);
+            return ((BinaryTree<K, V>) bucket).get(key);
         }
         return null;
     }
@@ -144,28 +94,12 @@ public class HashTableImpl<K extends Comparable<K>, V> implements HashTable<K, V
 
     @Override
     public void remove(K key, V value) {
-        int index = key.hashCode() % capacity;
-        Node<Object> bucketNode = buckets.getElementByIndex(index);
-        Object bucket = (bucketNode != null) ? bucketNode.getData() : null;
+        int index = calculateIndex(key);
+        Object bucket = getBucket(index);
 
         if (bucket instanceof LinkedListImpl) {
             LinkedListImpl<Entry<K, V>> linkedList = (LinkedListImpl<Entry<K, V>>) bucket;
-            Node<Entry<K, V>> current = linkedList.getHead();
-            Node<Entry<K, V>> previous = null;
-            while (current != null) {
-                Entry<K, V> entry = current.getData();
-                if (entry.getKey().equals(key) && entry.getValue().equals(value)) {
-                    if (previous == null) {
-                        linkedList.setHead(current.getNext());
-                    } else {
-                        previous.setNext(current.getNext());
-                    }
-                    size--;
-                    return;
-                }
-                previous = current;
-                current = current.getNext();
-            }
+            removeFromLinkedListByValue(linkedList, key, value);
         } else if (bucket instanceof BinaryTree) {
             BinaryTree<K, V> tree = (BinaryTree<K, V>) bucket;
             V treeValue = tree.get(key);
@@ -187,27 +121,106 @@ public class HashTableImpl<K extends Comparable<K>, V> implements HashTable<K, V
 
     @Override
     public void replace(K key, V oldValue, V newValue) {
-        int index = key.hashCode() % capacity;
-        Node<Object> bucketNode = buckets.getElementByIndex(index);
-        Object bucket = (bucketNode != null) ? bucketNode.getData() : null;
+        int index = calculateIndex(key);
+        Object bucket = getBucket(index);
 
         if (bucket instanceof LinkedListImpl) {
-            LinkedListImpl<Entry<K, V>> linkedList = (LinkedListImpl<Entry<K, V>>) bucket;
-            Node<Entry<K, V>> current = linkedList.getHead();
-            while (current != null) {
-                Entry<K, V> entry = current.getData();
-                if (entry.getKey().equals(key) && entry.getValue().equals(oldValue)) {
-                    entry.setValue(newValue);
-                    return;
-                }
-                current = current.getNext();
-            }
+            replaceInLinkedList((LinkedListImpl<Entry<K, V>>) bucket, key, oldValue, newValue);
         } else if (bucket instanceof BinaryTree) {
             BinaryTree<K, V> tree = (BinaryTree<K, V>) bucket;
             V treeValue = tree.get(key);
             if (treeValue != null && treeValue.equals(oldValue)) {
                 tree.replace(key, newValue);
             }
+        }
+    }
+
+    // ===================== Helper Methods ===================== //
+
+    private int calculateIndex(K key) {
+        return Math.abs(key.hashCode() % capacity);
+    }
+
+    private Object getBucket(int index) {
+        Node<Object> bucketNode = buckets.getElementByIndex(index);
+        return (bucketNode != null) ? bucketNode.getData() : null;
+    }
+
+    private void handleAddToLinkedList(LinkedListImpl<Entry<K, V>> linkedList, Entry<K, V> newEntry, int index) {
+        if (linkedList.getSize() >= BUCKET_THRESHOLD) {
+            BinaryTree<K, V> tree = new BinaryTree<>();
+            Node<Entry<K, V>> current = linkedList.getHead();
+            while (current != null) {
+                tree.add(current.getData().getKey(), current.getData().getValue());
+                current = current.getNext();
+            }
+            tree.add(newEntry.getKey(), newEntry.getValue());
+            buckets.add(index, tree);
+        } else {
+            linkedList.addToEnd(newEntry);
+        }
+    }
+
+    private V getFromLinkedList(LinkedListImpl<Entry<K, V>> linkedList, K key) {
+        Node<Entry<K, V>> current = linkedList.getHead();
+        while (current != null) {
+            if (current.getData().getKey().equals(key)) {
+                return current.getData().getValue();
+            }
+            current = current.getNext();
+        }
+        return null;
+    }
+
+    private V removeFromLinkedList(LinkedListImpl<Entry<K, V>> linkedList, K key) {
+        Node<Entry<K, V>> current = linkedList.getHead();
+        Node<Entry<K, V>> previous = null;
+
+        while (current != null) {
+            if (current.getData().getKey().equals(key)) {
+                V value = current.getData().getValue();
+                if (previous == null) {
+                    linkedList.setHead(current.getNext());
+                } else {
+                    previous.setNext(current.getNext());
+                }
+                size--;
+                return value;
+            }
+            previous = current;
+            current = current.getNext();
+        }
+        return null;
+    }
+
+    private void removeFromLinkedListByValue(LinkedListImpl<Entry<K, V>> linkedList, K key, V value) {
+        Node<Entry<K, V>> current = linkedList.getHead();
+        Node<Entry<K, V>> previous = null;
+
+        while (current != null) {
+            if (current.getData().getKey().equals(key) && current.getData().getValue().equals(value)) {
+                if (previous == null) {
+                    linkedList.setHead(current.getNext());
+                } else {
+                    previous.setNext(current.getNext());
+                }
+                size--;
+                return;
+            }
+            previous = current;
+            current = current.getNext();
+        }
+    }
+
+    private void replaceInLinkedList(LinkedListImpl<Entry<K, V>> linkedList, K key, V oldValue, V newValue) {
+        Node<Entry<K, V>> current = linkedList.getHead();
+
+        while (current != null) {
+            if (current.getData().getKey().equals(key) && current.getData().getValue().equals(oldValue)) {
+                current.getData().setValue(newValue);
+                return;
+            }
+            current = current.getNext();
         }
     }
 }
