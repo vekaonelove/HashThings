@@ -1,19 +1,16 @@
-package hashMap;
+package hashTable.impl;
 import hashTable.Entry;
-import linkedList.LinkedList;
+import hashTable.HashTable;
 import linkedList.Node;
 import linkedList.impl.LinkedListImpl;
 
 import java.util.Arrays;
+import java.util.Optional;
 
-public class HashMapImpl<K,V> implements HashMap<K,V> {
+public class HashMapImpl<K extends Comparable<K>, V> implements HashTable<K, V> {
     private LinkedListImpl<Entry<K, V>>[] buckets;
     private int size;
     private int capacity = 8; //default capacity - amount of buckets
-
-    public LinkedList<Entry<K,V>>[] getBuckets() {
-        return buckets;
-    }
 
     public int getSize() {
         return size;
@@ -29,6 +26,15 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
 
     public HashMapImpl(LinkedListImpl<Entry<K, V>>[] buckets) {
         this.buckets = buckets;
+    }
+
+    @Override
+    public LinkedListImpl<Object> getBuckets() {
+        LinkedListImpl<Object> bucketsList = new LinkedListImpl<>();
+        for (LinkedListImpl<Entry<K, V>> bucket : buckets) {
+            bucketsList.addToEnd(bucket);
+        }
+        return bucketsList;
     }
 
     @Override
@@ -61,6 +67,39 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
     }
 
     @Override
+    public Optional<?> getOrDefault(K key, V value) {
+        for (int i = 0; i < capacity; i++) {
+            if (buckets[i] != null && buckets[i].getHead() != null) {
+                Node<Entry<K, V>> current = buckets[i].getHead();
+                while (current != null) {
+                    Entry<K, V> entry = current.getData();
+                    if (entry.getKey().equals(key)) {
+                        return Optional.of(entry.getValue());
+                    }
+                    current = current.getNext();
+                }
+            }
+        }
+        return Optional.of(value);
+    }
+
+    @Override
+    public void replace(K key, V value1, V value2) {
+        for (int i = 0; i < capacity; i++) {
+            if (buckets[i] != null && buckets[i].getHead() != null) {
+                Node<Entry<K, V>> current = buckets[i].getHead();
+                while (current != null) {
+                    Entry<K, V> entry = current.getData();
+                    if (entry.getKey().equals(key) && entry.getValue().equals(value1)) {
+                        entry.setValue(value2);
+                        return;
+                    }
+                    current = current.getNext();
+                }
+            }
+        }
+    }
+    @Override
     public V pop(K key) {
         int hash = key.hashCode();
         int index = hash % capacity;
@@ -87,7 +126,7 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
     }
 
     @Override
-    public void printHashMap() {
+    public void printHashTable() {
         if (size > 0) {
             System.out.println("HashMap:");
         } else {
@@ -133,24 +172,6 @@ public class HashMapImpl<K,V> implements HashMap<K,V> {
                 current = current.getNext();
             }
         }
-    }
-
-    @Override
-    public void replace(K key, V value) {
-        int hash = key.hashCode();
-        int index = hash % capacity;
-        if (buckets[index] != null) {
-            Node<Entry<K, V>> current = buckets[index].getHead();
-            while (current != null) {
-                Entry<K, V> entry = current.getData();
-                if(entry.getKey().equals(key)){
-                    entry.setValue(value);
-                    return;
-                }
-                current = current.getNext();
-            }
-        }
-        add(key, value);
     }
 
     @Override

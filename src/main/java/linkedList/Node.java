@@ -43,15 +43,4 @@ public class Node<T> {
         return Objects.equals(data, node.data) && Objects.equals(next, node.next) && Objects.equals(prev, node.prev);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(data, next, prev);
-    }
-
-    @Override
-    public String toString() {
-        return "Node{" +
-                "data=" + data +
-                '}';
-    }
 }
