@@ -3,7 +3,8 @@ package reader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FileReader {
 
@@ -11,8 +12,9 @@ public class FileReader {
         return new String(Files.readAllBytes(Paths.get(filePath)));
     }
 
-    public static JSONObject readJsonFile(String filePath) throws IOException {
+    public static JsonNode readJsonFile(String filePath) throws IOException {
         String content = readFile(filePath);
-        return new JSONObject(content);
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readTree(content);
     }
 }
