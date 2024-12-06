@@ -17,6 +17,20 @@ dependencies {
     // Guava Dependency
     implementation 'com.google.guava:guava:32.0.1-jre'
 
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+    // JDBC Driver for MySQL
+    implementation 'mysql:mysql-connector-java:8.0.28'
+
+    // HikariCP connection pool
+    implementation 'com.zaxxer:HikariCP:5.0.0'
+
+    // For H2 (If using H2, replace the MySQL dependency above with this)
+    implementation 'com.h2database:h2:2.1.214'
+
+    implementation 'ch.qos.logback:logback-classic:1.4.11'
+
     // JSON Dependency
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 }
