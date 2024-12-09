@@ -1,7 +1,5 @@
 package dao.service;
 
-import dao.FileRecord;
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -9,15 +7,19 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FileMonitorService {
 
     private final Path directoryToWatch;
     private final ExecutorService executor;
+    private final FileMetadataService fileMetadataService;
+    private volatile boolean running = true;
 
-    public FileMonitorService(String directoryPath) {
+    public FileMonitorService(String directoryPath, FileMetadataService fileMetadataService) {
         this.directoryToWatch = Paths.get(directoryPath);
         this.executor = Executors.newSingleThreadExecutor();
+        this.fileMetadataService = fileMetadataService;
     }
 
     public void startWatching() {
@@ -27,51 +29,77 @@ public class FileMonitorService {
 
                 System.out.println("Monitoring directory: " + directoryToWatch);
 
-                while (true) {
-                    WatchKey key = watchService.take();
-                    for (WatchEvent<?> event : key.pollEvents()) {
-                        if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                            Path createdFilePath = directoryToWatch.resolve((Path) event.context());
-                            System.out.println("File created: " + createdFilePath);
-
-                            BasicFileAttributes attrs = Files.readAttributes(createdFilePath, BasicFileAttributes.class);
-                            LocalDateTime creationTime = attrs.creationTime()
-                                    .toInstant()
-                                    .atZone(ZoneId.systemDefault())
-                                    .toLocalDateTime();
-
-                            System.out.println("Creation time: " + creationTime);
-                            saveFileMetadata(createdFilePath, creationTime);
+                while (running) {
+                    WatchKey key = watchService.poll(1, TimeUnit.SECONDS);
+                    if (key != null) {
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                                Path createdFilePath = directoryToWatch.resolve((Path) event.context());
+                                processNewFile(createdFilePath);
+                            }
                         }
+                        key.reset();
                     }
-                    key.reset();
                 }
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                if (running) {
+                    e.printStackTrace();
+                } else {
+                    System.out.println("File monitor stopped.");
+                }
             }
         });
     }
 
-    private void saveFileMetadata(Path filePath, LocalDateTime creationTime) {
-        DatabaseService databaseService = new DatabaseServiceImpl();
-        FileRecord fileRecord = new FileRecord(
-                filePath.getFileName().toString(),
-                filePath.toAbsolutePath().toString(),
-                creationTime,
-                null,
-                null
-        );
-        databaseService.create(fileRecord);
+    private void processNewFile(Path filePath) {
+        try {
+            for (int i = 0; i < 5; i++) {
+                if (Files.exists(filePath) && Files.isReadable(filePath)) break;
+                Thread.sleep(100);
+            }
+
+            if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
+                System.out.println("File not accessible: " + filePath);
+                return;
+            }
+
+            BasicFileAttributes attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
+            LocalDateTime creationTime = attrs.creationTime()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            System.out.println("File detected: " + filePath);
+            System.out.println("Creation time: " + creationTime);
+
+            fileMetadataService.captureFileDetails(filePath.toAbsolutePath().toString());
+
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Error processing file: " + filePath);
+            e.printStackTrace();
+        }
     }
 
     public void stopWatching() {
+        running = false;
         executor.shutdownNow();
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                System.out.println("Forced shutdown of file monitor.");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
         String projectDirectory = "C:\\Users\\ksenveka\\IdeaProjects\\HashTable\\src\\main\\java";
-        FileMonitorService monitorService = new FileMonitorService(projectDirectory);
+
+        DatabaseService databaseService = new DatabaseServiceImpl();
+        FileMetadataService fileMetadataService = new FileMetadataService(databaseService);
+
+        FileMonitorService monitorService = new FileMonitorService(projectDirectory, fileMetadataService);
+        Runtime.getRuntime().addShutdownHook(new Thread(monitorService::stopWatching));
         monitorService.startWatching();
     }
 }
-

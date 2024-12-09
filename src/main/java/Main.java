@@ -14,7 +14,7 @@ public class Main {
         FileMetadataService metadataService = new FileMetadataService(dbService);
 
         // Capture file metadata for a specific file
-        metadataService.captureFileDetails("example.json");
+        metadataService.captureFileDetails("FileMetadataService.java");
 
         // Retrieve all captured file records
         List<FileRecord> fileRecords = metadataService.getAllFileRecords();

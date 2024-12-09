@@ -18,7 +18,6 @@ public class ConnectionPool {
             try (InputStream input = ConnectionPool.class.getClassLoader().getResourceAsStream("db-config.properties")) {
                 if (input == null) {
                     System.out.println("Sorry, unable to find db-config.properties");
-                    // You can set default properties or handle this error differently
                     properties.setProperty("db.type", "mysql");  // Default to mysql
                 } else {
                     properties.load(input);
@@ -31,7 +30,7 @@ public class ConnectionPool {
 
             if (!(dbType.equals("mysql") || dbType.equals("postgres") || dbType.equals("h2"))) {
                 System.out.println("Invalid database type selected, using default (mysql).");
-                dbType = "mysql";  // Default to mysql if the user enters an invalid option
+                dbType = "mysql";
             }
 
             properties.setProperty("db.type", dbType);

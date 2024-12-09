@@ -20,8 +20,15 @@ public class FileMetadataService {
         try {
             File file = new File(filePath);
 
+            if (!file.exists() || !file.isFile()) {
+                System.out.println("File not found or not valid: " + filePath);
+                return;
+            }
+
+            System.out.println("Capturing metadata for file: " + filePath);
+
             LocalDateTime timestampReceived = LocalDateTime.now();
-            LocalDateTime timestampProcessed = LocalDateTime.now().plusSeconds(10);
+            LocalDateTime timestampProcessed = LocalDateTime.now().plusSeconds(10); // Simulating processing time
             Duration processingTime = Duration.between(timestampReceived, timestampProcessed);
 
             FileRecord fileRecord = new FileRecord(
@@ -32,53 +39,25 @@ public class FileMetadataService {
                     processingTime
             );
 
+            System.out.println("FileRecord created: " + fileRecord);
+
+            // Save the file metadata to the database
             databaseService.create(fileRecord);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void captureFilesInDirectory(String directoryPath) {
-        try {
-            Path path = Paths.get(directoryPath);
-
-            WatchService watchService = FileSystems.getDefault().newWatchService();
-            path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-
-            System.out.println("Watching directory for new files...");
-
-            while (true) {
-                WatchKey key;
-                try {
-                    key = watchService.take();
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-
-                for (WatchEvent<?> event : key.pollEvents()) {
-                    WatchEvent.Kind<?> kind = event.kind();
-
-                    if (StandardWatchEventKinds.ENTRY_CREATE == kind) {
-                        Path newFilePath = (Path) event.context();
-                        System.out.println("New file detected: " + newFilePath);
-
-                        captureFileDetails(newFilePath.toString());
-                    }
-                }
-
-                boolean valid = key.reset();
-                if (!valid) {
-                    break;
-                }
-            }
+            System.out.println("File metadata saved to database");
 
         } catch (Exception e) {
+            System.out.println("Error capturing file details for: " + filePath);
             e.printStackTrace();
         }
     }
 
     public List<FileRecord> getAllFileRecords() {
-        return databaseService.readAll();
+        try {
+            return databaseService.readAll();
+        } catch (Exception e) {
+            System.out.println("Error retrieving file records from database");
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }
