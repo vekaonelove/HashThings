@@ -1,0 +1,45 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - postgres
+      - h2
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: hashtest
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hashtest
+    ports:
+      - "5432:5432"
+
+
+  h2:
+    image: oscarfonts/h2:latest
+    environment:
+      H2_OPTIONS: "-ifNotExists"
+    ports:
+      - "8082:8082"
+    volumes:
+      - h2-data:/h2db
+
+volumes:
+  mysql-data:
+  postgres-data:
+  h2-data:

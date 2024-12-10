@@ -7,17 +7,6 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Assuming you have set up DatabaseService
-        DatabaseService dbService = new DatabaseServiceImpl();
-
-        // Create a FileMetadataService instance
-        FileMetadataService metadataService = new FileMetadataService(dbService);
-
-        // Capture file metadata for a specific file
-        metadataService.captureFileDetails("FileMetadataService.java");
-
-        // Retrieve all captured file records
-        List<FileRecord> fileRecords = metadataService.getAllFileRecords();
-        fileRecords.forEach(System.out::println);
+        System.out.println("i have cleaned everything just for you to run)");
     }
 }

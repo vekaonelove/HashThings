@@ -18,7 +18,7 @@ public class ConnectionPool {
             try (InputStream input = ConnectionPool.class.getClassLoader().getResourceAsStream("db-config.properties")) {
                 if (input == null) {
                     System.out.println("Sorry, unable to find db-config.properties");
-                    properties.setProperty("db.type", "mysql");  // Default to mysql
+                    properties.setProperty("db.type", "mysql");
                 } else {
                     properties.load(input);
                 }

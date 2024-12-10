@@ -12,7 +12,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public void create(FileRecord fileRecord) {
-        String query = "INSERT INTO hashfiles (filename, filePath, timestampReceived, timestampProcessed, processingTime) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO hashfiles (filename, filePath, timestampReceived, timestampProcessed, processingTime) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {

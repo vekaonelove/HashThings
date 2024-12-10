@@ -1,9 +1,7 @@
 package dao.service;
 
 import dao.FileRecord;
-
 import java.io.File;
-import java.nio.file.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,7 +26,7 @@ public class FileMetadataService {
             System.out.println("Capturing metadata for file: " + filePath);
 
             LocalDateTime timestampReceived = LocalDateTime.now();
-            LocalDateTime timestampProcessed = LocalDateTime.now().plusSeconds(10); // Simulating processing time
+            LocalDateTime timestampProcessed = LocalDateTime.now().plusSeconds(10);
             Duration processingTime = Duration.between(timestampReceived, timestampProcessed);
 
             FileRecord fileRecord = new FileRecord(
@@ -40,8 +38,6 @@ public class FileMetadataService {
             );
 
             System.out.println("FileRecord created: " + fileRecord);
-
-            // Save the file metadata to the database
             databaseService.create(fileRecord);
             System.out.println("File metadata saved to database");
 
