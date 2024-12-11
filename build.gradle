@@ -21,19 +21,40 @@ repositories {
 }
 
 dependencies {
+    // JUnit dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    // Google Guava
     implementation 'com.google.guava:guava:32.0.1-jre'
+
+    // Lombok for annotation processing
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+    // Mockito dependencies for testing
+    testImplementation 'org.mockito:mockito-core:5.5.0' // Updated to the latest version
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0' // JUnit Jupiter support for Mockito
+
+    // MySQL JDBC Driver
     implementation 'mysql:mysql-connector-java:8.0.28'
+
+    // HikariCP for connection pooling
     implementation 'com.zaxxer:HikariCP:5.0.0'
+
+    // H2 Database for in-memory testing
     implementation 'com.h2database:h2:2.1.214'
+
+    // Logback for logging
     implementation 'ch.qos.logback:logback-classic:1.4.11'
+
+    // Jackson for JSON processing
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+    // PostgreSQL JDBC Driver
     implementation 'org.postgresql:postgresql:42.5.0'
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() // Enables JUnit 5 testing framework
 }
