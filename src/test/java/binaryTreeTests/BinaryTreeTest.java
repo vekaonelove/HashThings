@@ -2,7 +2,7 @@ package binaryTreeTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import binaryTree.BinaryTree;
+import com.kseniya.hash.dataStructures.binaryTree.BinaryTree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;

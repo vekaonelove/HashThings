@@ -1,7 +1,7 @@
 package linkedListTests;
 
-import linkedList.Node;
-import linkedList.impl.LinkedListImpl;
+import com.kseniya.hash.dataStructures.linkedList.Node;
+import com.kseniya.hash.dataStructures.linkedList.impl.LinkedListImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

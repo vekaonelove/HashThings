@@ -1,8 +1,8 @@
 package hashTableTests;
 
-import hashTable.Entry;
-import hashTable.impl.HashMapImpl;
-import linkedList.impl.LinkedListImpl;
+import com.kseniya.hash.dataStructures.hashTable.Entry;
+import com.kseniya.hash.dataStructures.hashTable.impl.HashMapImpl;
+import com.kseniya.hash.dataStructures.linkedList.impl.LinkedListImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.Optional;

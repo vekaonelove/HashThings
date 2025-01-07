@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "spring.file.monitor.directory",
+      "type": "java.lang.String",
+      "description": "Description for spring.file.monitor.directory."
+    },
+    {
+      "name": "spring.jpa.hibernate.dialect",
+      "type": "java.lang.String",
+      "description": "Description for spring.jpa.hibernate.dialect."
+    }
+  ] }

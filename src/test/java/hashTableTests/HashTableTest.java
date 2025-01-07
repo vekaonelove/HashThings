@@ -1,6 +1,6 @@
 package hashTableTests;
 
-import hashTable.impl.HashTableImpl;
+import com.kseniya.hash.dataStructures.hashTable.impl.HashTableImpl;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

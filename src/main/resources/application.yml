@@ -1,0 +1,17 @@
+spring:
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+
+  file:
+    monitor:
+      directory: "C:/Users/ksenveka/IdeaProjects/HashTable/src/main/java"

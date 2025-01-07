@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      pool-name: HikariCP
+    url: jdbc:mysql://localhost:3306/hashtest
+    username: root
+    password: 1234
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+    hibernate: { ddl-auto: update, dialect: org.hibernate.dialect.MySQL5InnoDBDialect }
+
+server:
+  port: 8080

@@ -1,10 +1,12 @@
 package binaryTreeTests;
 
-import binaryTree.TreeNode;
+import com.kseniya.hash.dataStructures.binaryTree.TreeNode;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TreeNodeTest {
+
+    private TreeNode<String, Integer> root;
 
     @Test
     void testConstructorAndGetters() {

@@ -2,7 +2,7 @@ package readerTests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import reader.FileReader;
+import com.kseniya.hash.reader.FileReader;
 import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
