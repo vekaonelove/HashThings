@@ -17,6 +17,6 @@ public class DatabaseController {
     @GetMapping
     public String getAllFileRecords(Model model) {
         model.addAttribute("fileRecords", fileRecordRepository.findAll());
-        return "database.jsp";
+        return "database.html";
     }
 }
